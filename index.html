@@ -275,36 +275,38 @@ Con ingredientes sencillos, sin conservantes, y un corazón latino que late con 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWl8ujJnf7v38_be1srAWkLa-VfxGasbkR6HoguO72EN_azx_SWF4ICReoG9JcNCbFyg/exec");
 
   function submitTestimonial(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const name = document.getElementById("testimonialName").value.trim();
-    const text = document.getElementById("testimonialText").value.trim();
+  const name = document.getElementById("testimonialName").value.trim();
+  const text = document.getElementById("testimonialText").value.trim();
 
-    if (!name || !text) {
-      alert("Per favore, compila tutti i campi!");
-      return;
-    }
-
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ name, text }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(res => {
-      if (res.ok) {
-        alert("Grazie per la tua recensione!");
-        document.getElementById("testimonialForm").reset();
-        loadTestimonials();
-      } else {
-        alert("Errore durante l'invio. Riprova più tardi!");
-      }
-    })
-    .catch(() => {
-      alert("Errore di rete. Controlla la connessione.");
-    });
+  if (!name || !text) {
+    alert("Per favore, compila tutti i campi!");
+    return;
   }
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ name, text }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    console.log("Risposta POST:", res.status);
+    if (res.ok) {
+      alert("🎉 Grazie per la tua recensione! La pubblicheremo tra poco.");
+      document.getElementById("testimonialForm").reset();
+      loadTestimonials(); // ricarica la lista!
+    } else {
+      alert("⚠️ Errore durante l'invio. Riprova più tardi!");
+    }
+  })
+  .catch(err => {
+    console.error("Errore rete:", err);
+    alert("🚨 Errore di rete. Controlla la connessione.");
+  });
+}
 
   function loadTestimonials() {
     fetch(SCRIPT_URL)
