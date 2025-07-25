@@ -295,7 +295,9 @@ Con ingredientes sencillos, sin conservantes, y un corazón latino que late con 
   .then(res => {
     console.log("Risposta POST:", res.status);
     if (res.ok) {
+      setTimeout(() => {
       alert("🎉 Grazie per la tua recensione! La pubblicheremo tra poco.");
+      }, 300);
       document.getElementById("testimonialForm").reset();
       loadTestimonials(); // ricarica la lista!
     } else {
