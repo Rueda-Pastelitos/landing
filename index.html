@@ -272,63 +272,77 @@ Con ingredientes sencillos, sin conservantes, y un corazón latino que late con 
     <p>&copy; 2025 RUEDA – Prodotto artigianale, 100% venezuelano, fatto in Italia</p>
   </footer>
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0_j7nxnex3tVA80LV-mG5F-16i32Bu9G1_2ZXqMSiLHbeGKNgd7U7SSu_45ennZP0cw/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG3Bkm4k3t3O54GvfjBDEBoQNFVjR070alpJOT2xQGXhpsdYMYSI9VmM140Flijx1Y6g/exec";
+
+  // Submit POST rimane identico
   function submitTestimonial(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const name = document.getElementById("testimonialName").value.trim();
-  const text = document.getElementById("testimonialText").value.trim();
+    const name = document.getElementById("testimonialName").value.trim();
+    const text = document.getElementById("testimonialText").value.trim();
 
-  if (!name || !text) {
-    alert("Per favore, compila tutti i campi!");
-    return;
+    if (!name || !text) {
+      alert("Per favore, compila tutti i campi!");
+      return;
+    }
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ name, text }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (res.ok) {
+        setTimeout(() => {
+          alert("🎉 Grazie per la tua recensione! La pubblicheremo tra poco.");
+        }, 300);
+        document.getElementById("testimonialForm").reset();
+        // Ricarica la lista dopo un po'
+        setTimeout(() => {
+          loadTestimonialsJSONP();
+        }, 1000);
+      } else {
+        alert("⚠️ Errore durante l'invio. Riprova più tardi!");
+      }
+    })
+    .catch(err => {
+      console.error("Errore rete:", err);
+      alert("🚨 Errore di rete. Controlla la connessione.");
+    });
   }
 
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ name, text }),
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
+  // JSONP callback per ricevere dati (GET)
+  function mostraRecensioni(data) {
+    const list = document.getElementById("testimonialList");
+    list.innerHTML = "";
+    if (!data || data.length === 0) {
+      list.innerHTML = "<p>Nessuna recensione ancora.</p>";
+      return;
     }
-  })
-  .then(res => {
-    console.log("Risposta POST:", res.status);
-    if (res.ok) {
-      setTimeout(() => {
-      alert("🎉 Grazie per la tua recensione! La pubblicheremo tra poco.");
-      }, 300);
-      document.getElementById("testimonialForm").reset();
-      loadTestimonials(); // ricarica la lista!
-    } else {
-      alert("⚠️ Errore durante l'invio. Riprova più tardi!");
-    }
-  })
-  .catch(err => {
-    console.error("Errore rete:", err);
-    alert("🚨 Errore di rete. Controlla la connessione.");
+    data.reverse().forEach(t => {
+      const div = document.createElement("div");
+      div.className = "testimonial";
+      div.innerHTML = `<p><strong>${t.name}</strong>: "${t.text}"</p>`;
+      list.appendChild(div);
+    });
+  }
+
+  // Carica recensioni via JSONP
+  function loadTestimonialsJSONP() {
+    const oldScript = document.getElementById("jsonpScript");
+    if (oldScript) oldScript.remove();
+
+    const script = document.createElement("script");
+    script.id = "jsonpScript";
+    script.src = SCRIPT_URL + "?callback=mostraRecensioni";
+    document.body.appendChild(script);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadTestimonialsJSONP();
   });
-}
-
-  function loadTestimonials() {
-    fetch(SCRIPT_URL)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById("testimonialList");
-        list.innerHTML = "";
-        data.reverse().forEach(t => {
-          const div = document.createElement("div");
-          div.className = "testimonial";
-          div.innerHTML = `<p><strong>${t.name}</strong>: "${t.text}"</p>`;
-          list.appendChild(div);
-        });
-      })
-      .catch(() => {
-        document.getElementById("testimonialList").innerHTML = "<p>Impossibile caricare le recensioni.</p>";
-      });
-  }
-
-  document.addEventListener("DOMContentLoaded", loadTestimonials);
 </script>
-
 </body>
 </html>
