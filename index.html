@@ -288,7 +288,7 @@ Con ingredientes sencillos, sin conservantes, y un corazón latino que late con 
     method: 'POST',
     body: JSON.stringify({ name, text }),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'text/plain;charset=utf-8'
     }
   })
   .then(res => {
